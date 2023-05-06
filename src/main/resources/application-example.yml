@@ -1,0 +1,19 @@
+server:
+  port: 8980
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/infoflow_tools?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: xxx
+    password: xxx
+    type: com.alibaba.druid.pool.DruidDataSource
+
+remind:
+  group:
+    url: 'https://api.im.baidu.com/api/msg/groupmsgsend?access_token=1234567890ghjk'
+    token: xx
+    aesKey: xxx
+
+
+
