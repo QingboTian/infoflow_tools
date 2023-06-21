@@ -15,6 +15,10 @@ import java.util.List;
 @Setter
 @ToString
 public class Message {
+    /**
+     * db primary key
+     */
+    private Long messageId;
     private Long groupId;
     private String uid;
     private List<String> ats;

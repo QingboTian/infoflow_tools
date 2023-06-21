@@ -17,6 +17,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -65,10 +66,11 @@ public class RemindInitialization implements ApplicationListener<ContextRefreshe
                     message.setGroupId(item.getGroupId());
                     message.setUid(item.getUid());
                     if (!ObjectUtils.isEmpty(item.getAts())) {
-                        message.setAts(Arrays.stream(item.getAts().split(MessageConstant.SEPARATOR_2)).collect(Collectors.toList()));
+                        message.setAts(new ArrayList<>(Arrays.stream(item.getAts().split(MessageConstant.SEPARATOR_2)).collect(Collectors.toSet())));
                     }
                     message.setMessage(item.getContent());
                     message.setRobotUrl(url);
+                    message.setMessageId(item.getId());
                     boolean ok = remindService.remindNotPersistence(message, timer);
                     if (ok) {
                         count.getAndIncrement();

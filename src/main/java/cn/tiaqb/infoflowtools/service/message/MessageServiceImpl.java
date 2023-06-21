@@ -40,7 +40,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void save(UserMessageEntity entity) {
+    public MessagePo save(UserMessageEntity entity) {
         MessagePo message = new MessagePo();
         message.setMessageId(entity.getMessage().getHeader().getMsgseqid());
         message.setUid(entity.getMessage().getHeader().getFromuserid());
@@ -49,7 +49,7 @@ public class MessageServiceImpl implements MessageService {
         message.setCreated(new Date());
         message.setModified(new Date());
         message.setState(1);
-        messageDao.save(message);
+        return messageDao.save(message);
     }
 
     private void post(Map<String, Object> content, String url) {

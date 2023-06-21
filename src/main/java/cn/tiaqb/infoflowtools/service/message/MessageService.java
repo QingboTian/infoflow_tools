@@ -2,6 +2,7 @@ package cn.tiaqb.infoflowtools.service.message;
 
 import cn.tiaqb.infoflowtools.entity.Message;
 import cn.tiaqb.infoflowtools.entity.UserMessageEntity;
+import cn.tiaqb.infoflowtools.entity.po.MessagePo;
 
 /**
  * @author tianqingbo_dxm
@@ -14,7 +15,7 @@ public interface MessageService {
 
     void sendAll(Message message);
 
-    void save(UserMessageEntity entity);
+    MessagePo save(UserMessageEntity entity);
 
 
 }

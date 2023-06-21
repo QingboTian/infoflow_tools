@@ -83,11 +83,14 @@ public class RemindServiceImpl implements RemindService {
         if (!ObjectUtils.isEmpty(message.getAts())) {
             remindPo.setAts(String.join(MessageConstant.SEPARATOR_2, message.getAts()));
         }
-        if (remindDao.save(remindPo) == null) {
+        RemindPo save = remindDao.save(remindPo);
+        if (save == null || save.getId() == null) {
             String msg = String.format("保存消息失败, remind = %s", JSONObject.toJSONString(remindPo));
             log.error(msg);
             return false;
         }
+
+        message.setMessageId(save.getId());
 
         // 执行时间
         Date parse = DateUtils.parse(timer, DateUtils.LONG_WEB_FORMAT);
@@ -96,6 +99,7 @@ public class RemindServiceImpl implements RemindService {
             log.info("提醒时间设置不合理，提醒时间在当前时间之前, remind = {}, 当前时间 = {}", JSONObject.toJSONString(remindPo), timerNow);
             message.setMessage(MessageConstant.SET_TIME_ERROR);
             messageService.send(message);
+            expire(message.getMessageId());
             return false;
         }
 
@@ -106,9 +110,20 @@ public class RemindServiceImpl implements RemindService {
             public void run() {
                 message.setMessage(String.format(MessageConstant.REMIND_HIT, message.getMessage()));
                 messageService.send(message);
+                expire(message.getMessageId());
             }
         }, parse);
         return true;
+    }
+
+    private void expire(Long id) {
+        try {
+            RemindPo one = remindDao.findOne(id);
+            one.setState(-1);
+            remindDao.save(one);
+        } catch (Exception ex) {
+            log.error("invalid data occur an error", ex);
+        }
     }
 
     @Override
@@ -132,6 +147,7 @@ public class RemindServiceImpl implements RemindService {
             public void run() {
                 message.setMessage(String.format(MessageConstant.REMIND_HIT, message.getMessage()));
                 messageService.send(message);
+                expire(message.getMessageId());
             }
         }, parse);
         return true;
