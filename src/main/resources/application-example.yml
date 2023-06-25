@@ -14,6 +14,3 @@ remind:
     url: 'https://api.im.baidu.com/api/msg/groupmsgsend?access_token=1234567890ghjk'
     token: xx
     aesKey: xxx
-
-
-

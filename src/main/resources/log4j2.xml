@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_HOME">logs</Property>
+        <property name="DEFAULT_PATTERN">%d %-5level [%X{INFO_FLOW_TRACE_ID}][%X{ctxLogId}][%thread] %logger{5} - %msg%n</property>
+        <property name="LEVEL">INFO</property>
+        <property name="FILE_SIZE">150MB</property>
+        <property name="FILE_INDEX_MAX">720</property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>${DEFAULT_PATTERN}</Pattern>
+            </PatternLayout>
+        </Console>
+
+        <RollingRandomAccessFile name="SERVICE" fileName="${LOG_HOME}/service.log"
+                                 filePattern="${LOG_HOME}/%d{yyyyMMdd}/service-%d{yyyyMMdd}-%i.log.gz">
+            <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="ACCEPT"/>
+            <PatternLayout>
+                <Pattern>${DEFAULT_PATTERN}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <SizeBasedTriggeringPolicy size="${FILE_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${FILE_INDEX_MAX}"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <asyncRoot level="${LEVEL}" includeLocation="true">
+            <AppenderRef ref="SERVICE"/>
+            <AppenderRef ref="Console"/>
+        </asyncRoot>
+
+        <asyncLogger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+            <AppenderRef ref="SERVICE"/>
+            <AppenderRef ref="Console"/>
+        </asyncLogger>
+
+    </Loggers>
+</Configuration>
