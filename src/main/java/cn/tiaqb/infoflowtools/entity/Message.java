@@ -24,4 +24,5 @@ public class Message {
     private List<String> ats;
     private String message;
     private String robotUrl;
+    private String traceId;
 }

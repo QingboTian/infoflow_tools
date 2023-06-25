@@ -33,4 +33,11 @@ public interface RemindService {
      * @param entity 消息实体
      */
     void apply(UserMessageEntity entity);
+
+    /**
+     * 置指定id的提醒为失效数据
+     *
+     * @param id 提醒id
+     */
+    void expire(Long id);
 }

@@ -6,6 +6,7 @@ import cn.tiaqb.infoflowtools.entity.Message;
 import cn.tiaqb.infoflowtools.entity.po.RemindPo;
 import cn.tiaqb.infoflowtools.service.remind.RemindService;
 import cn.tiaqb.infoflowtools.utils.DateUtils;
+import cn.tiaqb.infoflowtools.utils.UuidUtils;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -71,6 +69,7 @@ public class RemindInitialization implements ApplicationListener<ContextRefreshe
                     message.setMessage(item.getContent());
                     message.setRobotUrl(url);
                     message.setMessageId(item.getId());
+                    message.setTraceId(UuidUtils.uuid());
                     boolean ok = remindService.remindNotPersistence(message, timer);
                     if (ok) {
                         count.getAndIncrement();

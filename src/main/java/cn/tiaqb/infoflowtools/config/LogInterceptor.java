@@ -1,5 +1,7 @@
 package cn.tiaqb.infoflowtools.config;
 
+import cn.tiaqb.infoflowtools.constant.Constant;
+import cn.tiaqb.infoflowtools.utils.UuidUtils;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -7,7 +9,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
 /**
  * @author tianqingbo_dxm
@@ -16,12 +17,10 @@ import java.util.UUID;
 @Configuration
 public class LogInterceptor implements HandlerInterceptor {
 
-    private final static String INFO_FLOW_TRACE_ID = "INFO_FLOW_TRACE_ID";
-
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o) {
-        String traceId = UUID.randomUUID().toString().replace("-", "");
-        MDC.put(INFO_FLOW_TRACE_ID, traceId);
+        String traceId = UuidUtils.uuid();
+        MDC.put(Constant.INFO_FLOW_TRACE_ID, traceId);
         return true;
     }
 
@@ -32,6 +31,6 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) {
-
+        MDC.remove(Constant.INFO_FLOW_TRACE_ID);
     }
 }

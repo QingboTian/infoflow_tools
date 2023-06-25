@@ -18,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
 import java.util.function.Consumer;
 
 /**
@@ -61,6 +64,7 @@ public class RemindServiceImpl implements RemindService {
 
     /**
      * 定时提醒
+     *
      * @param message message
      * @return
      */
@@ -105,18 +109,12 @@ public class RemindServiceImpl implements RemindService {
 
         // 创建timer
         Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                message.setMessage(String.format(MessageConstant.REMIND_HIT, message.getMessage()));
-                messageService.send(message);
-                expire(message.getMessageId());
-            }
-        }, parse);
+        t.schedule(new RemindTask(message, messageService, this), parse);
         return true;
     }
 
-    private void expire(Long id) {
+    @Override
+    public void expire(Long id) {
         try {
             RemindPo one = remindDao.findOne(id);
             one.setState(-1);
@@ -142,14 +140,7 @@ public class RemindServiceImpl implements RemindService {
 
         // 创建timer
         Timer t = new Timer();
-        t.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                message.setMessage(String.format(MessageConstant.REMIND_HIT, message.getMessage()));
-                messageService.send(message);
-                expire(message.getMessageId());
-            }
-        }, parse);
+        t.schedule(new RemindTask(message, messageService, this), parse);
         return true;
     }
 

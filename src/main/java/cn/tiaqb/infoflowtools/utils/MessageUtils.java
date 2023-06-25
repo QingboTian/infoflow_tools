@@ -1,5 +1,6 @@
 package cn.tiaqb.infoflowtools.utils;
 
+import cn.tiaqb.infoflowtools.constant.Constant;
 import cn.tiaqb.infoflowtools.constant.MessageConstant;
 import cn.tiaqb.infoflowtools.entity.Message;
 import cn.tiaqb.infoflowtools.entity.Remind;
@@ -8,6 +9,7 @@ import cn.tiaqb.infoflowtools.enums.MessageTypeEnum;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.slf4j.MDC;
 import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
@@ -121,6 +123,8 @@ public class MessageUtils {
         message.setUid(entity.getMessage().getHeader().getFromuserid());
         message.setMessage(msg);
         message.setAts(MessageUtils.parseAT(entity));
+        // 设置消息所属trace
+        message.setTraceId(MDC.get(Constant.INFO_FLOW_TRACE_ID));
         return message;
     }
 
