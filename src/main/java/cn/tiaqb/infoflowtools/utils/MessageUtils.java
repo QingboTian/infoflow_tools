@@ -35,13 +35,16 @@ public class MessageUtils {
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        log.info("message utils request content = {}", JSONObject.toJSONString(content));
+        log.info("message utils request = {}", JSONObject.toJSONString(content));
 
         try {
             Response response = client.newCall(request).execute();
-            if (response != null) {
-                log.info("message utils response = {}", JSONObject.toJSONString(response));
+            if (response.body() != null) {
+                String responseBody = response.body().string();
+                log.info("message utils response = {}", responseBody);
                 response.body().close();
+            } else {
+                log.error("occur an error, response body is nul");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
