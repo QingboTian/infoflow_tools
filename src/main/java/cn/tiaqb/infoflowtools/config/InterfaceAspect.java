@@ -8,6 +8,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author tianqingbo_dxm
  * @date 2023/6/25 11:11 AM
@@ -23,9 +28,9 @@ public class InterfaceAspect {
 
     @Around("pointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object[] args = joinPoint.getArgs();
         Object result = joinPoint.proceed();
         try {
+            List<Object> args = getRequestArgs(joinPoint.getArgs());
             InterfaceContext.InterfaceModel interfaceModel = InterfaceContext.get();
             String router = interfaceModel.getRouter();
             String method = interfaceModel.getMethod();
@@ -36,6 +41,20 @@ public class InterfaceAspect {
             log.error("interface log -----  occur an error", ex);
         }
         return result;
+    }
+
+    private List<Object> getRequestArgs(Object[] args) {
+        if (args == null) {
+            return null;
+        }
+        List<Object> req = new ArrayList<>();
+        for (Object arg : args) {
+            if (arg instanceof HttpServletRequest || arg instanceof HttpServletResponse) {
+                continue;
+            }
+            req.add(arg);
+        }
+        return req;
     }
 
 }
