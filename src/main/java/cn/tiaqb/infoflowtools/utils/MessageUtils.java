@@ -175,6 +175,6 @@ public class MessageUtils {
                 ats.add(b.getUserid());
             }
         }
-        return ats;
+        return new ArrayList<>(new HashSet<>(ats));
     }
 }
