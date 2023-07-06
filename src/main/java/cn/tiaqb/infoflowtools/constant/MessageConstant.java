@@ -16,4 +16,6 @@ public class MessageConstant {
     final public static String PROCESSING = "接收到你的一条消息,正在处理中";
     final public static String SET_TIME_ERROR = "提醒时间设置不合理，提醒时间在当前时间之前";
     final public static String REMIND_HIT = "您有一个提醒，请查收\n%s\n";
+
+    final public static String REMIND_LIST = "提醒列表";
 }

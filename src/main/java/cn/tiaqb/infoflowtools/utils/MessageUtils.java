@@ -110,6 +110,11 @@ public class MessageUtils {
     public static MessageTypeEnum getMessageType(UserMessageEntity userMessageEntity) {
         try {
             String content = parseText(userMessageEntity);
+            // 优先级1
+            if (Objects.equals(content, MessageConstant.REMIND_LIST)) {
+                return MessageTypeEnum.SEARCH_REMIND_LIST;
+            }
+            // 优先级2
             String[] split = content.split(MessageConstant.ENTER);
             String type = split[1].substring(split[1].indexOf(MessageConstant.SEPARATOR) + 1);
             return MessageTypeEnum.type(type);
@@ -155,7 +160,7 @@ public class MessageUtils {
         List<UserMessageEntity.Body> body = entity.getMessage().getBody();
         for (UserMessageEntity.Body b : body) {
             if (Objects.equals(b.getType(), MessageConstant.TEXT_TYPE)) {
-                content.add(b.getContent());
+                content.add(b.getContent().trim());
             }
         }
         return content.toString();

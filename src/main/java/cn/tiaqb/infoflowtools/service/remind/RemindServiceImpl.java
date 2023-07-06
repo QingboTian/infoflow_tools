@@ -8,20 +8,19 @@ import cn.tiaqb.infoflowtools.entity.UserMessageEntity;
 import cn.tiaqb.infoflowtools.entity.po.RemindPo;
 import cn.tiaqb.infoflowtools.enums.MessageTypeEnum;
 import cn.tiaqb.infoflowtools.service.message.MessageService;
+import cn.tiaqb.infoflowtools.service.template.TemplateService;
 import cn.tiaqb.infoflowtools.utils.DateUtils;
 import cn.tiaqb.infoflowtools.utils.MessageUtils;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -40,6 +39,8 @@ public class RemindServiceImpl implements RemindService {
     private RemindDao remindDao;
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private TemplateService templateService;
 
     final private static Map<MessageTypeEnum, Consumer<UserMessageEntity>> PROCESSOR = new HashMap<>(8);
 
@@ -60,6 +61,34 @@ public class RemindServiceImpl implements RemindService {
             remind(message, remind.getTimer());
         };
         PROCESSOR.put(MessageTypeEnum.REMIND, processor1);
+
+        Consumer<UserMessageEntity> processor2 = userMessageEntity -> {
+            // 给用户回复消息 说明消息我已经接收到了
+            Message message = MessageUtils.buildMessage(userMessageEntity, MessageConstant.PROCESSING);
+            messageService.send(message);
+            // 入库消息
+            messageService.save(userMessageEntity);
+
+            // 查询指定群组&用户提醒列表
+            List<RemindPo> list = searchRemindListByUserAndGroup(message.getUid(), message.getGroupId());
+            if (ObjectUtils.isEmpty(list)) {
+                message.setMessage("您当前暂无提醒列表，可以通过相关文档使用提醒功能");
+                messageService.send(message);
+                return;
+            }
+
+            // 查询消息模版
+            String template = templateService.queryTemplateById("00001");
+            // 遍历提醒列表 发送消息
+            list.forEach(remind -> {
+                String content = remind.getContent();
+                String timer = remind.getTimer();
+                String msg = String.format(template, content, timer);
+                message.setMessage(msg);
+                messageService.send(message);
+            });
+        };
+        PROCESSOR.put(MessageTypeEnum.SEARCH_REMIND_LIST, processor2);
     }
 
     /**
@@ -152,6 +181,7 @@ public class RemindServiceImpl implements RemindService {
                 applyError(entity);
                 return;
             }
+            log.info("receive message success, message type = {}", JSONObject.toJSONString(type));
             PROCESSOR.getOrDefault(type, (e) -> {}).accept(entity);
         } catch (Exception ex) {
             log.error("消息解析异常", ex);
@@ -162,5 +192,17 @@ public class RemindServiceImpl implements RemindService {
     private void applyError(UserMessageEntity entity) {
         Message message = MessageUtils.buildMessage(entity, MessageConstant.PARSE_MESSAGE_ERROR);
         messageService.send(message);
+    }
+
+    private List<RemindPo> searchRemindListByUserAndGroup(String userId, Long groupId) {
+        RemindPo request = new RemindPo();
+        request.setState(1);
+        request.setGroupId(groupId);
+        request.setUid(userId);
+        log.info("searchRemindListByUserAndGroup request = {}", JSONObject.toJSONString(request));
+        Example<RemindPo> example = Example.of(request);
+        List<RemindPo> list = remindDao.findAll(example);
+        log.info("searchRemindListByUserAndGroup response = {}", JSONObject.toJSONString(list));
+        return list;
     }
 }

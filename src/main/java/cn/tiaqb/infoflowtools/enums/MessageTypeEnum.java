@@ -13,9 +13,15 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public enum MessageTypeEnum {
-    REMIND("remind");
+    /**
+     *
+     */
+    REMIND("remind", "用户主动设置提醒事项"),
+    SEARCH_REMIND_LIST("search_remind_list", "用户查询提醒事项列表"),
+    ;
 
-    private String type;
+    final private String type;
+    final private String desc;
 
     public static MessageTypeEnum type(String type) {
         for (MessageTypeEnum value : values()) {
