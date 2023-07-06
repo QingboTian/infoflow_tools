@@ -51,12 +51,6 @@ public class MessageUtils {
         }
     }
 
-    public static String parseTimer(UserMessageEntity entity) {
-        String text = parseText(entity);
-        Remind remind = parseRemindContent(text);
-        return remind.getTimer();
-    }
-
     public static Remind parseRemind(UserMessageEntity entity) {
         String text = parseText(entity);
         return parseRemindContent(text);
@@ -77,7 +71,7 @@ public class MessageUtils {
 
             String key = col[0];
             String value = line.substring(line.indexOf(separator) + 1);
-            if (i == 1) {
+            if (i == 0) {
                 if (!Objects.equals("【消息类型】", key)) {
                     throw new RuntimeException();
                 }
@@ -85,7 +79,7 @@ public class MessageUtils {
                     throw new RuntimeException();
                 }
             }
-            if (i == 2) {
+            if (i == 1) {
                 if (!Objects.equals("【提醒时间】", key)) {
                     throw new RuntimeException();
                 }
@@ -94,7 +88,7 @@ public class MessageUtils {
                 }
                 remind.setTimer(value);
             }
-            if (i == 3) {
+            if (i == 2) {
                 if (!Objects.equals("【提醒内容】", key)) {
                     throw new RuntimeException();
                 }
@@ -116,7 +110,7 @@ public class MessageUtils {
             }
             // 优先级2
             String[] split = content.split(MessageConstant.ENTER);
-            String type = split[1].substring(split[1].indexOf(MessageConstant.SEPARATOR) + 1);
+            String type = split[0].substring(split[1].indexOf(MessageConstant.SEPARATOR) + 1);
             return MessageTypeEnum.type(type);
         } catch (Exception ex) {
             log.error("解析消息类型发生错误", ex);
@@ -133,15 +127,6 @@ public class MessageUtils {
         message.setAts(MessageUtils.parseAT(entity));
         // 设置消息所属trace
         message.setTraceId(MDC.get(Constant.INFO_FLOW_TRACE_ID));
-        return message;
-    }
-
-    public static Message buildMessage(UserMessageEntity entity) {
-        Message message = new Message();
-        message.setRobotUrl(entity.getRobotUrl());
-        message.setGroupId(entity.getGroupid());
-        message.setUid(entity.getMessage().getHeader().getFromuserid());
-        message.setAts(MessageUtils.parseAT(entity));
         return message;
     }
 
@@ -166,6 +151,12 @@ public class MessageUtils {
         return content.toString();
     }
 
+    /**
+     * 解析@成员
+     *
+     * @param entity entity
+     * @return 成员列表
+     */
     public static List<String> parseAT(UserMessageEntity entity) {
         List<String> ats = new ArrayList<>();
         List<UserMessageEntity.Body> body = entity.getMessage().getBody();

@@ -27,14 +27,16 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void send(Message message) {
-        Assert.isEmpty(message, message.getRobotUrl(), message.getGroupId(), message.getUid());
+        Assert.isEmpty(message);
+        Assert.isEmpty(message.getRobotUrl(), message.getGroupId(), message.getUid());
         Map<String, Object> content = buildSendContent(message, false);
         post(content, message.getRobotUrl());
     }
 
     @Override
     public void sendAll(Message message) {
-        Assert.isEmpty(message, message.getRobotUrl(), message.getGroupId());
+        Assert.isEmpty(message);
+        Assert.isEmpty(message.getRobotUrl(), message.getGroupId());
         Map<String, Object> content = buildSendContent(message, true);
         post(content, message.getRobotUrl());
     }
@@ -84,9 +86,8 @@ public class MessageServiceImpl implements MessageService {
             body2.put("atall", true);
         } else {
             body2.put("atall", false);
-            List<String> ats = Optional.ofNullable(message.getAts()).orElse(new ArrayList<>());
-            ats.add(message.getUid());
-            body2.put("atuserids", ats);
+            List<String> atUserIds = new ArrayList<>(Optional.ofNullable(message.getAts()).orElse(new ArrayList<>()));
+            body2.put("atuserids", atUserIds);
         }
         body2.put("type", "AT");
         bodyList.add(body2);

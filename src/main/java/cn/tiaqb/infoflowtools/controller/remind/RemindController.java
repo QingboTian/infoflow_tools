@@ -52,7 +52,8 @@ public class RemindController {
     @PostMapping
     @ResponseBody
     public Response<Boolean> remind(@RequestBody Remind remind) {
-        Assert.isEmpty(remind, remind.getTimer(), remind.getContent(), remind.getUid(), remind.getGroupId());
+        Assert.isEmpty(remind);
+        Assert.isEmpty(remind.getTimer(), remind.getContent(), remind.getUid(), remind.getGroupId());
         String timer = remind.getTimer();
         if (!DataUtil.webTimeReg(timer)) {
             return Response.checkError();
