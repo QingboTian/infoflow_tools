@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -26,16 +27,24 @@ public class TemplateServiceImpl implements TemplateService {
         return data.getString(id);
     }
 
+    /**
+     * temp method.
+     * delete the method in the future, because the method is stupid.
+     * I am a rookie
+     * @return template map
+     */
     private JSONObject readTemplateData() {
+        InputStream is = null;
+        BufferedReader reader = null;
         try {
             String file = "remind_template.json";
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream(file);
+            is = this.getClass().getClassLoader().getResourceAsStream(file);
             if (is == null) {
                 log.error("occur an error, get resource as stream is null, file = {}", file);
                 return null;
             }
             StringBuilder contents = new StringBuilder();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            reader = new BufferedReader(new InputStreamReader(is));
             String text;
             while ((text = reader.readLine()) != null) {
                 contents.append(text);
@@ -43,6 +52,22 @@ public class TemplateServiceImpl implements TemplateService {
             return JSONObject.parseObject(contents.toString());
         } catch (Exception ex) {
             log.error("occur an error for ");
+        } finally {
+            // final close stream
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    log.error("buffer reader close error");
+                }
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error("input stream close error");
+                }
+            }
         }
         return null;
     }

@@ -190,7 +190,8 @@ public class RemindServiceImpl implements RemindService {
     }
 
     private void applyError(UserMessageEntity entity) {
-        Message message = MessageUtils.buildMessage(entity, MessageConstant.PARSE_MESSAGE_ERROR);
+        String msg = templateService.queryTemplateById("00003");
+        Message message = MessageUtils.buildMessage(entity, msg);
         messageService.send(message);
     }
 
