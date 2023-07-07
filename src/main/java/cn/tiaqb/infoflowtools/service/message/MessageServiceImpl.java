@@ -87,6 +87,7 @@ public class MessageServiceImpl implements MessageService {
         } else {
             body2.put("atall", false);
             List<String> atUserIds = new ArrayList<>(Optional.ofNullable(message.getAts()).orElse(new ArrayList<>()));
+            atUserIds.add(message.getUid());
             body2.put("atuserids", atUserIds);
         }
         body2.put("type", "AT");
