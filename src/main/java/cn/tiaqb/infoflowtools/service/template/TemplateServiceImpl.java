@@ -1,5 +1,6 @@
 package cn.tiaqb.infoflowtools.service.template;
 
+import cn.tiaqb.infoflowtools.enums.MessageTemplate;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,11 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public String queryTemplateById(String id) {
-        JSONObject data = readTemplateData();
-        if (data == null) {
+        MessageTemplate template = MessageTemplate.getById(id);
+        if (template == null) {
             return null;
         }
-        return data.getString(id);
+        return template.getContent();
     }
 
     /**
@@ -33,6 +34,7 @@ public class TemplateServiceImpl implements TemplateService {
      * I am a rookie
      * @return template map
      */
+    @Deprecated
     private JSONObject readTemplateData() {
         InputStream is = null;
         BufferedReader reader = null;
